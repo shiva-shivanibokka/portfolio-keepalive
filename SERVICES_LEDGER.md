@@ -155,7 +155,30 @@ actual usage.
     suspect the checker before the services. `.gitattributes` with
     `* text=auto eol=lf` prevents it.
 
-15. **`Path(__file__).parents[N]` is a bug waiting for a container.** The PCB
+15. **An unpinned linter is a timer on a red build.** `pip install ruff` in CI
+    installs whatever shipped most recently, so the result depends on *when* CI
+    runs rather than what was committed. LLM-Halucination-Detection went red on
+    a README-only commit: ruff 0.5.5 reported "All checks passed" locally on the
+    identical tree that CI failed with 33 errors. It had been broken since
+    whichever release added those rules — nobody had pushed since 12 July, so
+    nobody saw it. **Pin the linter version.** And when the new rules fire, read
+    them: 27 were mechanical, but three flagged deliberate boundary catches (a
+    health probe, a DB insert mapped to 409, an external call mapped to 502)
+    where rewriting the code to satisfy the linter would have made it worse —
+    those get a `noqa` with the reason, not a refactor.
+
+16. **Never let Python write a file a shell will read without `newline="
+"`.**
+    `pathlib.write_text()` and `open(...,"w")` translate `
+` to `
+` on
+    Windows. It happened three times in one session: a URL list where curl
+    rejected all nine URLs and it presented as every service being down at once,
+    and a deletion manifest where all 41 refs silently failed. The symptom never
+    looks like an encoding problem. `.gitattributes` with `* text=auto eol=lf`
+    covers the repository; the explicit `newline` argument covers everything else.
+
+17. **`Path(__file__).parents[N]` is a bug waiting for a container.** The PCB
     detector's first Cloud Run revision came up and returned 500 on every
     endpoint that read config: `FileNotFoundError:
     '/usr/local/lib/python3.11/params.yaml'`. `REPO_ROOT` walked up from
@@ -168,7 +191,7 @@ actual usage.
     the Dockerfile. Also: `/health` still returned 200 through it — the process
     was fine, the model just never loaded — which is rule 9 again.
 
-16. **On Cloud Run, a background warm-up thread barely runs.** Rule 17 below is
+18. **On Cloud Run, a background warm-up thread barely runs.** Rule 19 below is
     right about *lifespan*, but the obvious follow-through — load on a thread
     and return 503 until ready — fails on Cloud Run with default CPU
     throttling, because **the container is only given CPU while a request is in
@@ -180,7 +203,7 @@ actual usage.
     timeout. Keep `/health` non-blocking so liveness probes never wait. The
     inverse trade-off from rule 14 applies: block the endpoint, not startup.
 
-17. **Never block startup on model loading.** Uvicorn binds the socket only
+19. **Never block startup on model loading.** Uvicorn binds the socket only
     *after* lifespan startup returns, so loading two transformers inside it
     means a scale-to-zero service is an unreachable port for the whole load —
     indistinguishable from dead. Load on a background thread instead and let
