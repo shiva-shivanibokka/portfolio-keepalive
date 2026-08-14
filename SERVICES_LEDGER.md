@@ -19,6 +19,26 @@ Last updated: 13 August 2026.
 | **Redis Cloud (redis.io)** | — | Evaluated Aug 2026 as a replacement. Their free tier is no longer available at signup. Do not spend time on it again. |
 | **Hugging Face Spaces — *new Docker/Gradio Spaces*** | Computer-Vision-MLOps-Pipeline (attempted 13 Aug 2026) | `create_repo(space_sdk="docker")` now returns **402 Payment Required**: *"Static Spaces are free for everyone, but hosting Gradio and Docker Spaces on free cpu-basic requires a PRO subscription."* The six Spaces already on the `shiva-1993` account still run on `cpu-basic` and are unaffected — they predate the change. **Existing Spaces are grandfathered; new ones are not.** Checking the account's current Spaces tells you nothing about whether a new one can be created — only attempting `create_repo` does. Static Spaces (no server process) remain free. |
 
+## Surveyed 14 Aug 2026 — where the Cloud Run services could go
+
+Prompted by the trial ending ~19 Sept. **Every viable option requires a card.**
+There is no card-free host that will run a 1-2 GB torch container.
+
+| Option | Free? | Verdict |
+|---|---|---|
+| **Google Cloud Run, upgraded account** | **Always Free never expires**: 180k vCPU-s, 360k GiB-s, 2M requests/month. Measured usage is ~1-4% of that. | **$0/month, zero migration.** Upgrading keeps the remaining $131 credit *and* grants Always Free. Card required but not charged. |
+| **Oracle Cloud Always Free** | 2 OCPU / 12 GB ARM, no expiry. Card required for identity ($1 hold, refunded). | Real fallback, real work: images must be rebuilt for **arm64**, you self-manage Docker/TLS/nginx, one region only, and A1 capacity is a lottery. **Oracle silently halved this from 4 OCPU/24 GB on 15 June 2026 with no announcement** — the same free-tier rug-pull this ledger exists to record. |
+| **Render** | Free web service, **512 MB RAM** | Too small. Torch alone needs more. |
+| **Koyeb** | Free Starter tier **closed to new users** after the Mistral acquisition, Feb 2026 | Not available. |
+| **Fly.io** | No free tier for new accounts | Already burned; now formally gone. |
+| **Railway** | $5 one-time credit, not a free tier | Will not carry 9 services. |
+
+**The conclusion that matters:** avoiding a card is not achievable, so it should
+not drive the decision. The real choice is between $0 on an upgraded GCP account
+with no migration, and $0 on Oracle with a full arm64 rebuild and self-managed
+infrastructure. The GCP free tier is also the larger of the two relative to
+actual usage.
+
 ## Constrained — usable, but the limit bites
 
 | Service | Limit | Status |
