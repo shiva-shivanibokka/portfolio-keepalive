@@ -178,7 +178,20 @@ actual usage.
     looks like an encoding problem. `.gitattributes` with `* text=auto eol=lf`
     covers the repository; the explicit `newline` argument covers everything else.
 
-17. **`Path(__file__).parents[N]` is a bug waiting for a container.** The PCB
+17. **Container image sizes are not additive, so do not cost them that way.**
+    Six Artifact Registry repos reported ~56 GB across 50 images, which read as
+    ~$5/month of storage. Deleting 41 of them — every image no live revision
+    referenced, verified — reclaimed **0.1 MB**. Docker images share layers: eight
+    builds of the same service sit on one `python:3.11-slim` + torch base, and
+    deleting a manifest frees nothing while a surviving image still references
+    those layers. Registry garbage collection is asynchronous on top of that, so
+    the reported size lags further. The manifest count fell 82%; the byte count
+    did not, and was never going to. **Estimate registry cost from distinct
+    layers, not from the sum of image sizes** — and treat a per-image size in a
+    listing as "the size of this image standalone", not "what it adds to the
+    repo".
+
+18. **`Path(__file__).parents[N]` is a bug waiting for a container.** The PCB
     detector's first Cloud Run revision came up and returned 500 on every
     endpoint that read config: `FileNotFoundError:
     '/usr/local/lib/python3.11/params.yaml'`. `REPO_ROOT` walked up from
@@ -191,7 +204,7 @@ actual usage.
     the Dockerfile. Also: `/health` still returned 200 through it — the process
     was fine, the model just never loaded — which is rule 9 again.
 
-18. **On Cloud Run, a background warm-up thread barely runs.** Rule 19 below is
+19. **On Cloud Run, a background warm-up thread barely runs.** Rule 20 below is
     right about *lifespan*, but the obvious follow-through — load on a thread
     and return 503 until ready — fails on Cloud Run with default CPU
     throttling, because **the container is only given CPU while a request is in
@@ -203,7 +216,7 @@ actual usage.
     timeout. Keep `/health` non-blocking so liveness probes never wait. The
     inverse trade-off from rule 14 applies: block the endpoint, not startup.
 
-19. **Never block startup on model loading.** Uvicorn binds the socket only
+20. **Never block startup on model loading.** Uvicorn binds the socket only
     *after* lifespan startup returns, so loading two transformers inside it
     means a scale-to-zero service is an unreachable port for the whole load —
     indistinguishable from dead. Load on a background thread instead and let
