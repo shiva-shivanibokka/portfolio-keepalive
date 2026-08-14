@@ -33,7 +33,17 @@ jobs:
 
       - name: Warm all services
         id: ping
-        run: ./ping.sh | tee result.txt
+        continue-on-error: true          # so the status file is still recorded
+        shell: bash
+        run: |
+          # pipefail, or the exit status comes from tee and a total failure of
+          # ping.sh reports as a green run. That happened on the first version
+          # of this workflow: the script was not executable, nothing ran, and
+          # the job passed.
+          set -o pipefail
+          # `bash ping.sh`, not `./ping.sh` — the executable bit does not
+          # survive a commit from Windows, so relying on it fails on the runner.
+          bash ping.sh | tee result.txt
 
       - name: Record status
         # STATUS.md carries only the date, so it changes at most once a day and
@@ -52,10 +62,13 @@ jobs:
             cat result.txt 2>/dev/null || echo "no result recorded"
             echo '```'
           } > STATUS.md
-          if ! git diff --quiet STATUS.md; then
-            git config user.name  "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add STATUS.md
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add STATUS.md
+          # --cached, and after `git add`: `git diff` on an untracked file
+          # reports no change, so the very first run committed nothing and the
+          # anti-disable mechanism never armed.
+          if ! git diff --cached --quiet STATUS.md; then
             git commit -m "status: $(date -u +%Y-%m-%d)"
             git push
           fi
@@ -65,3 +78,11 @@ jobs:
         run: |
           echo "::error::One or more services did not return 200 — see the table above."
           exit 1
+
+      - name: Confirm the check actually ran
+        # A guard against the failure this workflow already had once: reporting
+        # success without having pinged anything.
+        run: |
+          test -s result.txt || { echo "::error::result.txt is empty — ping.sh did not run."; exit 1; }
+          grep -q "SERVICE" result.txt || { echo "::error::result.txt has no table."; exit 1; }
+          echo "Checked $(( $(wc -l < result.txt) - 1 )) services."
