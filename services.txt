@@ -1,0 +1,17 @@
+# One service per line: name<TAB>url
+# Every Cloud Run service that backs a public demo. Warming them costs nothing
+# — Cloud Run bills request-processing time, so an instance that is alive but
+# idle is free; the ping buys warmth for the price of a few-millisecond request.
+model-serving	https://model-serving-wr2e7j4cga-uc.a.run.app/health
+# /model/info, not /health: this service's /health is deliberately
+# non-blocking and returns 200 while the weights are still loading, so pinging
+# it would keep the container warm but leave the model cold and the first real
+# visitor still waiting ~9s. /model/info blocks until the model is in memory.
+pcb-defect-detector	https://pcb-defect-detector-wr2e7j4cga-uc.a.run.app/model/info
+feature-store-api	https://feature-store-api-wr2e7j4cga-uc.a.run.app/health
+search-ranking-api	https://search-ranking-api-yfy6zx2pmq-uc.a.run.app/health
+multimodal-rag-backend	https://multimodal-rag-backend-yfy6zx2pmq-uc.a.run.app/health
+nlp-pipeline-api	https://nlp-pipeline-api-yfy6zx2pmq-uc.a.run.app/health
+competitor-intelligence-engine	https://competitor-intelligence-engine-yfy6zx2pmq-uc.a.run.app/health
+llm-eval-backend	https://llm-eval-backend-bno6qvxnbq-ue.a.run.app/health
+liver-hcc	https://liver-hcc-jy7kz4dhtq-uc.a.run.app/health

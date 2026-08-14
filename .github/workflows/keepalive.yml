@@ -1,0 +1,67 @@
+name: keepalive
+
+# Warms every Cloud Run service behind a public demo, and fails loudly if one
+# is unreachable.
+#
+# Why not Cloud Scheduler: its free tier is 3 jobs per billing account and one
+# is already used by model-serving. Nine services need warming. GitHub Actions
+# cron is free and unlimited on public repositories.
+#
+# Why this is free on Cloud Run too: Cloud Run bills request-processing time
+# unless CPU-always-allocated is set, so an instance that is alive but idle
+# costs nothing. The ping buys warmth for the price of a few-ms request. Do NOT
+# "fix" cold starts with --min-instances 1 instead: that switches on
+# instance-lifetime billing, roughly $35-40/month per service.
+
+on:
+  schedule:
+    # Every 10 minutes. Cloud Run keeps an idle instance for ~15 minutes, so
+    # this stays comfortably inside that window. GitHub delays scheduled runs
+    # under load, which is fine — a late ping only means one cold visitor.
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Warm all services
+        id: ping
+        run: ./ping.sh | tee result.txt
+
+      - name: Record status
+        # STATUS.md carries only the date, so it changes at most once a day and
+        # this commits at most once a day. That is deliberate: GitHub disables
+        # scheduled workflows in a repository with no activity for 60 days, so
+        # a keepalive with no commits eventually switches itself off — exactly
+        # the silent failure it exists to prevent.
+        if: always()
+        run: |
+          {
+            echo "# Status"
+            echo
+            echo "Last successful check: $(date -u +%Y-%m-%d)"
+            echo
+            echo '```'
+            cat result.txt 2>/dev/null || echo "no result recorded"
+            echo '```'
+          } > STATUS.md
+          if ! git diff --quiet STATUS.md; then
+            git config user.name  "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add STATUS.md
+            git commit -m "status: $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Fail if any service was unreachable
+        if: steps.ping.outcome == 'failure'
+        run: |
+          echo "::error::One or more services did not return 200 — see the table above."
+          exit 1
