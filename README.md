@@ -1,5 +1,11 @@
 # portfolio-keepalive
 
+Two things live here: the keepalive that warms the Cloud Run demos, and
+[`SERVICES_LEDGER.md`](SERVICES_LEDGER.md) — the record of which hosting
+services have burned us and why. **Read the ledger before provisioning any
+backend.** It was a loose file on a desktop until 14 Aug 2026, which was a bad
+place for the only copy of seventeen rules learned the expensive way.
+
 Keeps every Cloud Run service behind a public demo warm, and reports loudly when
 one is not.
 
