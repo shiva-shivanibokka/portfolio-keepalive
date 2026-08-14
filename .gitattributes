@@ -1,0 +1,7 @@
+# The runner is Linux. A CR on the end of a URL makes curl reject it, which
+# looks exactly like every service being down at once — that already happened
+# once. Force LF on everything the workflow reads or executes.
+* text=auto eol=lf
+*.sh text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
