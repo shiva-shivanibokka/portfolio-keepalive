@@ -4,13 +4,13 @@ Last successful check: 2026-08-16
 
 ```
 SERVICE                              CODE      TIME  BODY
-model-serving                         200 0.088915s  {"status":"ok","uptime_seconds":242055.9,"redis_available":false,"cache_backend":"in_proce
-pcb-defect-detector                   200 6.676241s  {"model_version":"local:best.pt","classes":["missing_hole","mouse_bite","open_circuit","sh
-feature-store-api                     200 9.221249s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-08-16T22:21:01.
-search-ranking-api                    200 176.415657s  {"status":"ok","engine_ready":true,"device":"cpu","index_size":1000000,"cross_encoder":tru
-multimodal-rag-backend                200 91.370593s  {"status":"ok"}
-nlp-pipeline-api                      200 41.279585s  {"status":"ok","version":"0.1.0"}
-competitor-intelligence-engine        200 3.332509s  {"status":"ok"}
-llm-eval-backend                      200 29.684953s  {"status":"ok","db":"ok","model":"lazy"}
-liver-hcc                             200 4.242690s  {"status":"ok","model_available":true}
+model-serving                         200 0.129362s  {"status":"ok","uptime_seconds":243647.1,"redis_available":false,"cache_backend":"in_proce
+pcb-defect-detector                   200 6.657982s  {"model_version":"local:best.pt","classes":["missing_hole","mouse_bite","open_circuit","sh
+feature-store-api                     200 5.026800s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-08-16T22:47:28.
+search-ranking-api                    200 168.076308s  {"status":"ok","engine_ready":true,"device":"cpu","index_size":1000000,"cross_encoder":tru
+multimodal-rag-backend                200 83.740282s  {"status":"ok"}
+nlp-pipeline-api                      200 41.774726s  {"status":"ok","version":"0.1.0"}
+competitor-intelligence-engine        200 3.389284s  {"status":"ok"}
+llm-eval-backend                      200 24.117795s  {"status":"ok","db":"ok","model":"lazy"}
+liver-hcc                             200 4.212378s  {"status":"ok","model_available":true}
 ```
