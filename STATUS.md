@@ -4,13 +4,13 @@ Last successful check: 2026-08-31
 
 ```
 SERVICE                              CODE      TIME  BODY
-model-serving                         200 0.119001s  {"status":"ok","uptime_seconds":29679.1,"redis_available":false,"cache_backend":"in_proces
-pcb-defect-detector                   200 22.930098s  {"model_version":"local:best.pt","classes":["missing_hole","mouse_bite","open_circuit","sh
-feature-store-api                     200 19.134164s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-08-31T15:32:10.
-search-ranking-api                    200 173.015464s  {"status":"ok","engine_ready":true,"device":"cpu","index_size":1000000,"cross_encoder":tru
-multimodal-rag-backend                200 126.820609s  {"status":"ok"}
-nlp-pipeline-api                      200 70.400275s  {"status":"ok","version":"0.1.0"}
-competitor-intelligence-engine        200 11.768156s  {"status":"ok"}
-llm-eval-backend                      200 48.344002s  {"status":"ok","db":"ok","model":"lazy"}
-liver-hcc                             200 14.549429s  {"status":"ok","model_available":true}
+model-serving                         200 0.105356s  {"status":"ok","uptime_seconds":49649.5,"redis_available":false,"cache_backend":"in_proces
+pcb-defect-detector                   200 21.828873s  {"model_version":"local:best.pt","classes":["missing_hole","mouse_bite","open_circuit","sh
+feature-store-api                     200 13.269156s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-08-31T21:04:53.
+search-ranking-api                    503 109.796899s  Service Unavailable
+multimodal-rag-backend                200 109.425989s  {"status":"ok"}
+nlp-pipeline-api                      200 76.472766s  {"status":"ok","version":"0.1.0"}
+competitor-intelligence-engine        200 9.034353s  {"status":"ok"}
+llm-eval-backend                      200 46.427684s  {"status":"ok","db":"ok","model":"lazy"}
+liver-hcc                             200 15.838238s  {"status":"ok","model_available":true}
 ```
