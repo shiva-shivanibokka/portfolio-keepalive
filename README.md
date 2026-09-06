@@ -23,7 +23,6 @@ minutes**:
 | llm-eval-backend | 52.8s |
 | feature-store-api | 15.0s |
 | liver-hcc | 14.1s |
-| competitor-intelligence-engine | 9.8s |
 | pcb-defect-detector | 7.0s |
 | model-serving | **0.3s** — already had a keepalive |
 

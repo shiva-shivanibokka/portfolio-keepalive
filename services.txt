@@ -12,6 +12,9 @@ feature-store-api	https://feature-store-api-wr2e7j4cga-uc.a.run.app/health
 search-ranking-api	https://search-ranking-api-yfy6zx2pmq-uc.a.run.app/health
 multimodal-rag-backend	https://multimodal-rag-backend-yfy6zx2pmq-uc.a.run.app/health
 nlp-pipeline-api	https://nlp-pipeline-api-yfy6zx2pmq-uc.a.run.app/health
-competitor-intelligence-engine	https://competitor-intelligence-engine-yfy6zx2pmq-uc.a.run.app/health
+# Removed 6 Sept 2026: competitor-intelligence-engine no longer backs
+# anything. Competitor-Insight-Engine now runs its API as a Vercel
+# service beside its own frontend, so there is no Cloud Run service to
+# keep warm and a failing ping here would be a false alarm.
 llm-eval-backend	https://llm-eval-backend-bno6qvxnbq-ue.a.run.app/health
 liver-hcc	https://liver-hcc-jy7kz4dhtq-uc.a.run.app/health
