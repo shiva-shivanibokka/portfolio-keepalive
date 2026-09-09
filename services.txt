@@ -3,11 +3,10 @@
 # — Cloud Run bills request-processing time, so an instance that is alive but
 # idle is free; the ping buys warmth for the price of a few-millisecond request.
 model-serving	https://model-serving-wr2e7j4cga-uc.a.run.app/health
-# /model/info, not /health: this service's /health is deliberately
-# non-blocking and returns 200 while the weights are still loading, so pinging
-# it would keep the container warm but leave the model cold and the first real
-# visitor still waiting ~9s. /model/info blocks until the model is in memory.
-pcb-defect-detector	https://pcb-defect-detector-wr2e7j4cga-uc.a.run.app/model/info
+# Removed 9 Sept 2026: pcb-defect-detector no longer backs anything.
+# Computer-Vision-MLOps-Pipeline runs the model in the visitor's browser now
+# (ONNX Runtime Web, static on Vercel), so there is nothing to keep warm and a
+# failing ping here would be a false alarm rather than a dead demo.
 feature-store-api	https://feature-store-api-wr2e7j4cga-uc.a.run.app/health
 search-ranking-api	https://search-ranking-api-yfy6zx2pmq-uc.a.run.app/health
 multimodal-rag-backend	https://multimodal-rag-backend-yfy6zx2pmq-uc.a.run.app/health
