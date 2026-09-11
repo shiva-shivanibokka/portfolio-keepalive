@@ -16,4 +16,8 @@ nlp-pipeline-api	https://nlp-pipeline-api-yfy6zx2pmq-uc.a.run.app/health
 # service beside its own frontend, so there is no Cloud Run service to
 # keep warm and a failing ping here would be a false alarm.
 llm-eval-backend	https://llm-eval-backend-bno6qvxnbq-ue.a.run.app/health
-liver-hcc	https://liver-hcc-jy7kz4dhtq-uc.a.run.app/health
+# Removed 11 Sept 2026: liver-hcc no longer exists. Cumida-ML-Model exports its
+# fitted model parameters and runs both models in the visitor's browser (static
+# on Vercel), so the Cloud Run service was deleted along with its Artifact
+# Registry repo. Nothing to keep warm, and a failing ping here would be a false
+# alarm rather than a dead demo.
