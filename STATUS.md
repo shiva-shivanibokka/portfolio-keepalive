@@ -4,10 +4,10 @@ Last successful check: 2026-09-17
 
 ```
 SERVICE                              CODE      TIME  BODY
-model-serving                         200 0.121370s  {"status":"ok","uptime_seconds":75918.2,"redis_available":false,"cache_backend":"in_proces
-feature-store-api                     200 16.364591s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-09-17T18:19:58.
-search-ranking-api                    500 16.153035s   <html><head> <meta http-equiv="content-type" content="text/html;charset=utf-8"> <title>50
-multimodal-rag-backend                200 161.955540s  {"status":"ok"}
-nlp-pipeline-api                      000  timeouts  {"status":"ok"}
-llm-eval-backend                      200 51.502886s  {"status":"ok","db":"ok","model":"lazy"}
+model-serving                         200 0.209985s  {"status":"ok","uptime_seconds":87425.2,"redis_available":false,"cache_backend":"in_proces
+feature-store-api                     200 16.801340s  {"status":"ok","components":{"redis":"ok","duckdb":"ok"},"timestamp":"2026-09-17T21:31:45.
+search-ranking-api                    503 8.581852s  Service Unavailable
+multimodal-rag-backend                200 116.317766s  {"status":"ok"}
+nlp-pipeline-api                      200 201.540900s  {"status":"ok","version":"0.1.0"}
+llm-eval-backend                      200 51.473922s  {"status":"ok","db":"ok","model":"lazy"}
 ```
