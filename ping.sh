@@ -4,6 +4,19 @@
 # nobody checks is indistinguishable from no keepalive at all.
 set -uo pipefail
 fail=0
+
+# An empty services.txt must not pass. The loop below would simply not execute
+# and the script would exit 0, reporting success having pinged nothing -- the
+# same shape as the very first version of this workflow, where ping.sh was not
+# executable, nothing ran, and the job went green. A keepalive that warms
+# nothing should say so rather than look healthy.
+if ! grep -qvE '^\s*(#|$)' services.txt; then
+  echo "services.txt lists no services, so nothing was warmed." >&2
+  echo "If that is intentional the schedule should be off too - see" >&2
+  echo ".github/workflows/keepalive.yml, dormant as of 8 October 2026." >&2
+  exit 1
+fi
+
 printf '%-34s %6s %9s  %s\n' SERVICE CODE TIME BODY
 while IFS=$'\t' read -r name url; do
   [[ -z "${name// }" || "${name:0:1}" == "#" ]] && continue

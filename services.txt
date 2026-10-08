@@ -2,20 +2,54 @@
 # Every Cloud Run service that backs a public demo. Warming them costs nothing
 # — Cloud Run bills request-processing time, so an instance that is alive but
 # idle is free; the ping buys warmth for the price of a few-millisecond request.
-model-serving	https://model-serving-wr2e7j4cga-uc.a.run.app/health
-# Removed 9 Sept 2026: pcb-defect-detector no longer backs anything.
-# Computer-Vision-MLOps-Pipeline runs the model in the visitor's browser now
-# (ONNX Runtime Web, static on Vercel), so there is nothing to keep warm and a
-# failing ping here would be a false alarm rather than a dead demo.
-feature-store-api	https://feature-store-api-wr2e7j4cga-uc.a.run.app/health
-search-ranking-api	https://search-ranking-api-yfy6zx2pmq-uc.a.run.app/health
-multimodal-rag-backend	https://multimodal-rag-backend-yfy6zx2pmq-uc.a.run.app/health
-nlp-pipeline-api	https://nlp-pipeline-api-yfy6zx2pmq-uc.a.run.app/health
+#
+# ───────────────────────────────────────────────────────────────────────────
+# EMPTY as of 8 October 2026. All six remaining services were removed at once,
+# for a reason none of the earlier removals had: they did not stop needing a
+# backend, they lost one.
+#
+# The Google Cloud billing account behind every project here is closed. The
+# free trial this repository was built in anticipation of (see README, "Why
+# this exists", and SERVICES_LEDGER.md) ended, migration did not happen, and
+# all six now return 503. Measured 8 Oct 2026, every one of them:
+#
+#   model-serving           503    feature-store-api    503
+#   search-ranking-api      503    multimodal-rag-...   503
+#   nlp-pipeline-api        503    llm-eval-backend     503
+#
+# The symptom is worth recording, because it does not look like a billing
+# problem from inside the console: `gcloud run services list` still reports
+# every service Ready=True with the correct URL, and the URLs below are
+# unchanged. The 503 body reads "The service you requested is not available
+# yet. Please try again in 30 seconds", which reads like a deploy in progress.
+# `gcloud billing projects describe` is what actually says it:
+# billingEnabled: False, on a billing account whose own `open` field is false.
+#
+# Everything below is kept, commented, rather than deleted. If the account is
+# ever reopened these are the exact URLs to restore, and the list is also the
+# record of what was lost.
+#
+# model-serving	https://model-serving-wr2e7j4cga-uc.a.run.app/health
+# feature-store-api	https://feature-store-api-wr2e7j4cga-uc.a.run.app/health
+# search-ranking-api	https://search-ranking-api-yfy6zx2pmq-uc.a.run.app/health
+# multimodal-rag-backend	https://multimodal-rag-backend-yfy6zx2pmq-uc.a.run.app/health
+# nlp-pipeline-api	https://nlp-pipeline-api-yfy6zx2pmq-uc.a.run.app/health
+# llm-eval-backend	https://llm-eval-backend-bno6qvxnbq-ue.a.run.app/health
+# ───────────────────────────────────────────────────────────────────────────
+#
+# Earlier removals, kept for the record. These three are the other kind: the
+# demo stopped needing a backend, which is a migration rather than a loss.
+#
 # Removed 6 Sept 2026: competitor-intelligence-engine no longer backs
 # anything. Competitor-Insight-Engine now runs its API as a Vercel
 # service beside its own frontend, so there is no Cloud Run service to
 # keep warm and a failing ping here would be a false alarm.
-llm-eval-backend	https://llm-eval-backend-bno6qvxnbq-ue.a.run.app/health
+#
+# Removed 9 Sept 2026: pcb-defect-detector no longer backs anything.
+# Computer-Vision-MLOps-Pipeline runs the model in the visitor's browser now
+# (ONNX Runtime Web, static on Vercel), so there is nothing to keep warm and a
+# failing ping here would be a false alarm rather than a dead demo.
+#
 # Removed 11 Sept 2026: liver-hcc no longer exists. Cumida-ML-Model exports its
 # fitted model parameters and runs both models in the visitor's browser (static
 # on Vercel), so the Cloud Run service was deleted along with its Artifact

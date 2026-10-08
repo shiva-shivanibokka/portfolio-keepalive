@@ -9,6 +9,21 @@ place for the only copy of seventeen rules learned the expensive way.
 Keeps every Cloud Run service behind a public demo warm, and reports loudly when
 one is not.
 
+> [!IMPORTANT]
+> **Dormant since 8 October 2026 — there is nothing left to warm.** The Google
+> Cloud billing account behind all six remaining services is closed and every
+> one of them returns 503. The schedule is commented out in
+> `.github/workflows/keepalive.yml` and `services.txt` is empty, with both the
+> URLs and the reason kept in place rather than deleted.
+>
+> It is worth being clear that this is not a keepalive that failed. It worked:
+> it detected six dead demos and said so every ten minutes until someone
+> looked. It is dormant because the alarm was answered, not because it was
+> wrong. The rest of this README describes how it behaves when there are
+> services in `services.txt`, and all of it still applies if the account is
+> reopened — see [`SERVICES_LEDGER.md`](SERVICES_LEDGER.md) for what that would
+> take.
+
 ## Why this exists
 
 Cloud Run scales to zero, which is what makes it free — but a cold service takes

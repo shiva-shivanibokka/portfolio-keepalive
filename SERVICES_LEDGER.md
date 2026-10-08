@@ -5,7 +5,16 @@ projects.** It exists because the same failure keeps recurring: a free trial
 lapses, the service is deleted, and a portfolio demo a recruiter might click
 goes dead without a single notification.
 
-Last updated: 13 August 2026.
+Last updated: 8 October 2026.
+
+> [!CAUTION]
+> **8 October 2026 — the thing this ledger was written to prevent happened
+> anyway.** The Google Cloud free trial lapsed, the billing account is closed,
+> and all six remaining Cloud Run services are down. The survey below, dated 14
+> Aug 2026, correctly predicted the date and named the fix; the fix was not
+> carried out. The ledger was right and was not acted on, so the failure is not
+> a gap in this document. It is worth recording that distinction here, because
+> the natural response to an outage is to write more documentation.
 
 ---
 
@@ -13,6 +22,7 @@ Last updated: 13 August 2026.
 
 | Service | Used by | What happened |
 |---|---|---|
+| **Google Cloud Platform — *free trial*** | All 6 remaining Cloud Run services: model-serving, feature-store-api, search-ranking-api, multimodal-rag-backend, nlp-pipeline-api, llm-eval-backend. Also Cloud Scheduler. | Trial lapsed ~Sept 2026 as predicted below; the billing account is now **closed** and every service returns 503. **The symptom hides the cause, worse than Fly.io did.** `gcloud run services list` still reports every service `Ready: True` with its URL unchanged, so from inside the console nothing looks wrong. The 503 body reads *"The service you requested is not available yet. Please try again in 30 seconds"* — which reads like a deploy in progress, and is what every frontend's cold-start message then repeats to visitors indefinitely. The only command that states the real cause is `gcloud billing projects describe <project>` → `billingEnabled: False`, and `gcloud billing accounts list` → `OPEN: False`. **Check billing before debugging a Cloud Run 503.** Recovery requires adding a card (see the survey below, which remains accurate). Not done: the frontends were changed to report the backend as offline instead. |
 | **Fly.io** | Tisch-ML-Model, Sepsis-ML-Model | Trial ended ~July 2025 and suspended every app on the account at once. Symptom is deceptive: the hostname still resolves and still accepts TCP, but the TLS handshake fails, so it reads as a network fault rather than a billing one. Not fixable without adding a card. Both projects migrated to Vercel. |
 | **MotherDuck** | ML-System-Design-Feature-Store (offline store) | Trial ended ~Aug 2026. Every DuckDB-backed endpoint returned 500 while the Cloud Run process itself stayed healthy and kept serving `/docs`, which made it look like an application bug. Replaced with a DuckDB file baked into the container image. |
 | **Aiven — *trial*** | — | The original 30-day trial lapsed. Superseded: the same service now runs on Aiven's permanent free tier. See below — recovered, not lost. |
@@ -44,7 +54,7 @@ actual usage.
 | Service | Limit | Status |
 |---|---|---|
 | **Upstash** | Free plan allows **one database per account** | Taken by ML-System-Design-Recommendation-Engine (keys `rec:*`). Sharing it with a second project is safe if key prefixes are disjoint — verified for the feature store (`entity:user:*`), and neither project issues `FLUSHDB` or an unscoped `KEYS`. Treat as the fallback when a dedicated instance is not available. |
-| **Aiven — *free tier*** | **One service per organization**, 1 GB Valkey, no card, no expiry | **In use** — `valkey-150915c3-mlfeature`, the online store for ML-System-Design-Feature-Store. The one-service limit means no other project can have an Aiven service without displacing it. Aiven powers off free services with no continuative activity, so the daily materialization cron is what keeps it up. |
+| **Aiven — *free tier*** | **One service per organization**, 1 GB Valkey, no card, no expiry | **In use** — `valkey-150915c3-mlfeature`, the online store for ML-System-Design-Feature-Store. The one-service limit means no other project can have an Aiven service without displacing it. Aiven powers off free services with no continuative activity, so the daily materialization cron is what keeps it up. **Trap, hit on 8 Oct 2026 and backed out the same day:** that cron's two verification steps call the Cloud Run API, so once the billing account closed the whole workflow went red daily and the obvious tidy-up was to switch the schedule off. Doing that would have stopped the only thing touching Valkey and cost the online store a few weeks later — to stop a failure email. `materialization/materialize.py` itself still succeeds; only the assertions through the dead API fail. The fix was to keep the cron and gate the two Cloud Run checks to `workflow_dispatch`. **Before disabling any scheduled job, check what else it is keeping alive.** |
 | **Supabase** | Free projects **pause after ~7 days idle**, then are **deleted at 90 days** | Used by Churn-Intelligence-Platform. Survived by resuming rather than rebuilding. A paused project is indistinguishable from a deleted one from outside — `NXDOMAIN` plus the pooler reporting an unknown tenant — so **check the Supabase dashboard before concluding data is lost**. A daily keepalive cron is now in place. |
 
 ## Working, in use
@@ -52,8 +62,8 @@ actual usage.
 | Service | Used by |
 |---|---|
 | **Vercel** (Hobby) | Tisch, Sepsis, Churn dashboard, Feature Store frontend |
-| **Google Cloud Run** | ML-System-Design-Feature-Store API — never went down; only its data backends did. Also ML-System-Design-Model-Serving (`model-serving`, us-central1) and Computer-Vision-MLOps-Pipeline (`pcb-defect-detector`, us-central1, 2 vCPU / 2 GiB, `--max-instances 1` because the prediction log is in-container SQLite) — both with **zero attached services**, so there is nothing on them that can expire. **All 8 services die when the free trial lapses (~19 Sept 2026)** unless migrated — the user has chosen migration over upgrading. |
-| **Google Cloud Scheduler** | `model-serving-keepalive` (us-central1, `*/5 * * * *` → `GET /health`), added 13 Aug 2026. Holds one Cloud Run instance warm so a visitor never waits out a 40s model load. **Free**, and not by accident: Cloud Run bills request-processing time unless CPU-always-allocated is set, so an instance that is alive but idle costs nothing — the ping buys warmth for the price of a 5 ms request. Free tier is 3 jobs per billing account; this is job 1 of 3. Do **not** set `--min-instances 1` instead: that switches on instance-lifetime billing, roughly $35-40/month at 2 vCPU / 4 GiB. |
+| ~~**Google Cloud Run**~~ | **Moved to Burned, 8 Oct 2026.** This row used to end: *"All 8 services die when the free trial lapses (~19 Sept 2026) unless migrated — the user has chosen migration over upgrading."* They did, and the migration did not happen. Left struck through rather than deleted, because a correct prediction that was not acted on is the most useful line in this file. |
+| ~~**Google Cloud Scheduler**~~ | **Dead with the billing account, 8 Oct 2026.** `model-serving-keepalive` (us-central1, `*/5 * * * *` → `GET /health`), added 13 Aug 2026. Holds one Cloud Run instance warm so a visitor never waits out a 40s model load. **Free**, and not by accident: Cloud Run bills request-processing time unless CPU-always-allocated is set, so an instance that is alive but idle costs nothing — the ping buys warmth for the price of a 5 ms request. Free tier is 3 jobs per billing account; this is job 1 of 3. Do **not** set `--min-instances 1` instead: that switches on instance-lifetime billing, roughly $35-40/month at 2 vCPU / 4 GiB. |
 | **Aiven Valkey** (free tier) | ML-System-Design-Feature-Store online store — kept alive by the daily materialization cron |
 | **Supabase** | Churn-Intelligence-Platform (+ keepalive cron) |
 | **Upstash** | ML-System-Design-Recommendation-Engine |

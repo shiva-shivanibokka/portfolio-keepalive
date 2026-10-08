@@ -14,11 +14,33 @@ name: keepalive
 # instance-lifetime billing, roughly $35-40/month per service.
 
 on:
-  schedule:
-    # Every 10 minutes. Cloud Run keeps an idle instance for ~15 minutes, so
-    # this stays comfortably inside that window. GitHub delays scheduled runs
-    # under load, which is fine — a late ping only means one cold visitor.
-    - cron: "*/10 * * * *"
+  # Dormant as of 8 October 2026. The schedule was:
+  #
+  #   schedule:
+  #     - cron: "*/10 * * * *"
+  #
+  # Every 10 minutes, because Cloud Run keeps an idle instance for ~15 minutes,
+  # so that stayed comfortably inside the window.
+  #
+  # There is nothing left to warm. The Google Cloud billing account behind all
+  # six remaining services is closed and every one returns 503 — see
+  # services.txt, where the list is kept commented rather than deleted, and
+  # SERVICES_LEDGER.md for the symptom and what it cost.
+  #
+  # This is NOT being switched off because it was failing. It was failing
+  # correctly: six demos are down and it said so, every ten minutes, which is
+  # exactly what the README means by "a keepalive nobody checks is
+  # indistinguishable from no keepalive at all". It is switched off because the
+  # alarm has been heard and there is no longer a service for the ping to buy
+  # anything from. Running it now would mean emailing a daily report of a fact
+  # that cannot change until someone reopens a billing account.
+  #
+  # Note the consequence, since this repository documents it elsewhere: GitHub
+  # disables scheduled workflows in a repository with no activity for 60 days,
+  # and with no cron there are no STATUS.md commits to prevent that. That does
+  # not matter while the cron is commented out, but it does mean restoring this
+  # is two steps, not one — uncomment the schedule AND check that Actions has
+  # not disabled scheduled runs on the repository in the meantime.
   workflow_dispatch:
 
 permissions:
